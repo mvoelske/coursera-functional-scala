@@ -40,5 +40,11 @@ object Main {
   /**
    * Exercise 3
    */
-  def countChange(money: Int, coins: List[Int]): Int = ???
+  def countChange(money: Int, coins: List[Int]): Int = (money, coins.sorted) match {
+    case (0, _) => 0
+    case (_, Nil) => 0
+    case (m, c :: cs) if m == c => 1 + countChange(m, cs)
+    case (m, c :: cs) if m > c => countChange(m-c, c::cs) + countChange(m, cs)
+    case (m, c :: cs) => 0
+  }
 }
