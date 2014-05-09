@@ -148,4 +148,11 @@ class FunSetSuite extends FunSuite {
       assert(forall(t, isOdd))
     }
   }
+  
+  test("exists tests whether a set contains at least one element that fulfills a predicate") {
+    new TestSets {
+      assert(exists(s1, x => x < 2))
+      assert(!exists(union(s1, s2), x => x < 1 || x > 2))
+    }
+  }
 }
