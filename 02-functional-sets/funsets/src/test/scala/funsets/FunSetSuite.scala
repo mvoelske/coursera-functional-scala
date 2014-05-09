@@ -136,4 +136,16 @@ class FunSetSuite extends FunSuite {
       assert(!contains(f, 3))
     }
   }
+  
+  test("forall tests a predicate on all elements of a set") {
+    new TestSets {
+      val s = union(union(s1, s2), s3)
+      val t = union(s1, s3)
+      
+      def isOdd(x : Int) = x % 2 == 1
+      
+      assert(!forall(s, isOdd))
+      assert(forall(t, isOdd))
+    }
+  }
 }
