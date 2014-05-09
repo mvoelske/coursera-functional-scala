@@ -7,13 +7,27 @@ object rationals {
   val z = new Rational(3, 2)                      //> z  : week03.Rational = 3/2
   
   x sub y sub z                                   //> res0: week03.Rational = -79/42
+  y add y                                         //> res1: week03.Rational = 10/7
   
-  //x add y mul z
+  x less y                                        //> res2: Boolean = true
+  
+  x max y                                         //> res3: week03.Rational = 5/7
+  
 }
 
 class Rational(x: Int, y: Int) {
-  def numer = x
-  def denom = y
+	require(y != 0, "denominator must be nonzero")
+	
+	def this(x: Int) = this(x, 1)
+	
+	private def gcd(a: Int, b: Int): Int = if(b == 0) a else gcd(b, a % b)
+	private val g = gcd(x, y)
+  val numer = x / g
+  val denom = y / g
+  
+  def less(that: Rational) = numer * that.denom < that.numer * denom
+
+	def max(that: Rational) = if (this less that) that else this
 
   def add(that: Rational) =
     new Rational(
