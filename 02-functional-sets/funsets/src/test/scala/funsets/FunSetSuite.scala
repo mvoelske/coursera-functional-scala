@@ -155,4 +155,32 @@ class FunSetSuite extends FunSuite {
       assert(!exists(union(s1, s2), x => x < 1 || x > 2))
     }
   }
+  
+  test("map applies a function to each element of a set") {
+    new TestSets {
+      val s = union(union(s1, s2), s3)
+      
+      val t : Set = map(s, x => x + 1)
+      
+      assert(!contains(t, 1))
+      assert(contains(t, 4))
+      assert(!contains(t, 5))
+      
+    }
+  }
+  
+  test("map works for nonlinear functions") {
+    new TestSets {
+      val f = (x:Int) => if (x == 2) x*x else -x
+      val s = union(s1, union(s2, s3))
+      val t = map(s, f)
+     
+      assert(!contains(t, 1))
+      assert(!contains(t, 2))
+      assert(!contains(t, 3))
+      assert(contains(t, -1))
+      assert(contains(t, 4))
+      assert(contains(t, -3))
+    }
+  }
 }
