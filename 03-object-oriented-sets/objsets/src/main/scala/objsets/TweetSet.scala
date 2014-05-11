@@ -8,7 +8,7 @@ import scala.annotation.tailrec
 class Tweet(val user: String, val text: String, val retweets: Int) {
   override def toString: String =
     "User: " + user + "\n" +
-    "Text: " + text + " [" + retweets + "]"
+      "Text: " + text + " [" + retweets + "]"
 }
 
 /**
@@ -40,7 +40,7 @@ abstract class TweetSet {
    *
    * Question: Can we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
-   * 
+   *
    * Answer: DRY says do it here
    */
   def filter(p: Tweet => Boolean): TweetSet = filterAcc(p, new Empty)
@@ -55,11 +55,11 @@ abstract class TweetSet {
    *
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
-   * 
+   *
    * Answer: this one needs to be abstract, because it exploits the structure of
    * NonEmpty
    */
-   def union(that: TweetSet): TweetSet
+  def union(that: TweetSet): TweetSet
 
   /**
    * Returns the tweet from this set which has the greatest retweet count.
@@ -72,6 +72,8 @@ abstract class TweetSet {
    */
   def mostRetweeted: Tweet
 
+  def mostRetweetedAcc(acc: Tweet): Tweet
+
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
    * in descending order. In other words, the head of the resulting list should
@@ -82,7 +84,6 @@ abstract class TweetSet {
    * and be implemented in the subclasses?
    */
   def descendingByRetweet: TweetList = ???
-
 
   def isEmpty: Boolean
   /**
@@ -118,8 +119,10 @@ class Empty extends TweetSet {
   def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = acc
 
   def union(that: TweetSet) = that
-  
+
   def mostRetweeted = throw new NoSuchElementException
+  
+  def mostRetweetedAcc(acc: Tweet) = acc
 
   def isEmpty = true
   /**
@@ -138,23 +141,24 @@ class Empty extends TweetSet {
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
   def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = {
-    val eAcc = if(p(elem)) acc incl elem else acc
-    val lAcc = left filterAcc(p, eAcc)
-    right filterAcc(p, lAcc)
+    val eAcc = if (p(elem)) acc incl elem else acc
+    val lAcc = left filterAcc (p, eAcc)
+    right filterAcc (p, lAcc)
   }
 
+  def union(that: TweetSet) = ((left union right) union that) incl elem
 
-  def union(that: TweetSet) =  ((left union right) union that) incl elem
-  
+  def mostRetweetedAcc(acc: Tweet): Tweet = {
+    def max(l: Tweet, r: Tweet) = if (l.retweets > r.retweets) l else r
+    left.mostRetweetedAcc(max(elem, right.mostRetweetedAcc(acc)))
+  }
+
   def mostRetweeted: Tweet = {
-    def max(l: Tweet, r: Tweet) = if(l.retweets > r.retweets) l else r
-    def mostRetweetedAcc(ts: TweetSet, acc: Tweet): Tweet = {
-    }
-    
-    mostRetweetedAcc(this, elem)
+    mostRetweetedAcc(elem)
   }
-  
+
   def isEmpty = false
+
   /**
    * The following methods are already implemented
    */
@@ -202,7 +206,6 @@ object Nil extends TweetList {
 class Cons(val head: Tweet, val tail: TweetList) extends TweetList {
   def isEmpty = false
 }
-
 
 object GoogleVsApple {
   val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
