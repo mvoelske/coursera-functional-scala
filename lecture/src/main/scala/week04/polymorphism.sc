@@ -10,7 +10,7 @@ object polymorphism {
   val l1 = singleton("Foobar")                    //> l1  : week04.Cons[String] = week04.Cons@52636e13
 
   def nth[T](n: Int, l: List[T]): T =
-    if (n < 0 || l.isEmpty) throw new IndexOutOfBoundsException
+    if (l.isEmpty) throw new IndexOutOfBoundsException
     else if (n == 0) l.head
     else nth(n - 1, l.tail)                       //> nth: [T](n: Int, l: week04.List[T])T
 
