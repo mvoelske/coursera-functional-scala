@@ -83,9 +83,16 @@ abstract class TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def descendingByRetweet: TweetList = ???
+  def descendingByRetweet: TweetList =
+    if (isEmpty) Nil
+    else {
+      val top = mostRetweeted
+      new Cons(top, remove(top).descendingByRetweet)
+    }
 
   def isEmpty: Boolean
+
+  def size: Int
   /**
    * The following methods are already implemented
    */
@@ -121,10 +128,12 @@ class Empty extends TweetSet {
   def union(that: TweetSet) = that
 
   def mostRetweeted = throw new NoSuchElementException
-  
+
   def mostRetweetedAcc(acc: Tweet) = acc
 
   def isEmpty = true
+
+  def size = 0
   /**
    * The following methods are already implemented
    */
@@ -146,7 +155,11 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     right filterAcc (p, lAcc)
   }
 
-  def union(that: TweetSet) = ((left union right) union that) incl elem
+  def union(that: TweetSet) = {
+    val lt = left union that
+    val rt = right union lt
+    rt incl elem
+  }
 
   def mostRetweetedAcc(acc: Tweet): Tweet = {
     def max(l: Tweet, r: Tweet) = if (l.retweets > r.retweets) l else r
@@ -154,10 +167,16 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
   }
 
   def mostRetweeted: Tweet = {
-    mostRetweetedAcc(elem)
+    def max(l: Tweet, r: Tweet) = if (l.retweets > r.retweets) l else r
+
+    val maxl = if (left.isEmpty) elem else left.mostRetweeted
+    val maxr = if (right.isEmpty) elem else right.mostRetweeted
+    max(max(elem, maxl), maxr)
   }
 
   def isEmpty = false
+
+  def size = 1 + left.size + right.size
 
   /**
    * The following methods are already implemented
@@ -211,14 +230,17 @@ object GoogleVsApple {
   val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
   val apple = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
 
-  lazy val googleTweets: TweetSet = ???
-  lazy val appleTweets: TweetSet = ???
+  def containsAny(keywords: List[String])(t: Tweet): Boolean = 
+    keywords.map(t.text.contains).exists(identity)
+  
+  lazy val googleTweets: TweetSet = TweetReader.allTweets.filter(containsAny(google))
+  lazy val appleTweets: TweetSet = TweetReader.allTweets.filter(containsAny(apple))
 
   /**
    * A list of all tweets mentioning a keyword from either apple or google,
    * sorted by the number of retweets.
    */
-  lazy val trending: TweetList = ???
+  lazy val trending: TweetList = googleTweets.union(appleTweets).descendingByRetweet
 }
 
 object Main extends App {
