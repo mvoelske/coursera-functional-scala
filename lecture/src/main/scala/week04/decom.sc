@@ -16,10 +16,10 @@ object decom {
     case Sum(e1, e2) => eval(e1) + eval(e2)
   }                                               //> eval: (e: week04.smart.Expr)Int
 
-	def show_as_prod_operand(e: Expr) = e match {
-		case Sum(_, _) => "(" + show(e) + ")"
-		case _ => show(e)
-	}                                         //> show_as_prod_operand: (e: week04.smart.Expr)String
+  def show_as_prod_operand(e: Expr) = e match {
+    case Sum(_, _) => "(" + show(e) + ")"
+    case _ => show(e)
+  }                                               //> show_as_prod_operand: (e: week04.smart.Expr)String
 
   def show(e: Expr): String = e match {
     case Number(n) => n.toString
