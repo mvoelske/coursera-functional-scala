@@ -1,8 +1,8 @@
 <classpath>
-  <classpathentry kind="src" path="src/main/scala" output="target/scala-2.10/classes"/>
-  <classpathentry kind="src" path="src/main/java" output="target/scala-2.10/classes"/>
-  <classpathentry kind="src" path="src/test/scala" output="target/scala-2.10/test-classes"/>
-  <classpathentry kind="src" path="src/test/java" output="target/scala-2.10/test-classes"/>
+  <classpathentry output="target/scala-2.10/classes" kind="src" path="src/main/scala"/>
+  <classpathentry output="target/scala-2.10/classes" kind="src" path="src/main/java"/>
+  <classpathentry output="target/scala-2.10/test-classes" kind="src" path="src/test/scala"/>
+  <classpathentry output="target/scala-2.10/test-classes" kind="src" path="src/test/java"/>
   <classpathentry kind="lib" path="/home/fmiv8532/.ivy2/cache/org.scalacheck/scalacheck_2.10/jars/scalacheck_2.10-1.10.1.jar"/>
   <classpathentry kind="lib" path="/home/fmiv8532/.ivy2/cache/org.scala-tools.testing/test-interface/jars/test-interface-0.5.jar"/>
   <classpathentry kind="lib" path="/home/fmiv8532/.ivy2/cache/org.scala-lang/scala-actors/jars/scala-actors-2.10.1.jar"/>
