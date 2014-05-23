@@ -1,6 +1,7 @@
 package patmat
 
 import common._
+import scala.annotation.tailrec
 
 /**
  * Assignment 4: Huffman coding
@@ -94,8 +95,8 @@ object Huffman {
    * head of the list should have the smallest weight), where the weight
    * of a leaf is the frequency of the character.
    */
-  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = 
-    freqs.sortBy( cf => cf._2 ).map( Leaf.tupled )
+  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] =
+    freqs.sortBy(cf => cf._2).map(Leaf.tupled)
 
   /**
    * Checks whether the list `trees` contains only one single code tree.
@@ -139,7 +140,16 @@ object Huffman {
    *    the example invocation. Also define the return type of the `until` function.
    *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
    */
-  def until(xxx: ???, yyy: ???)(zzz: ???): ??? = ???
+  def until(
+    terminate: List[CodeTree] => Boolean,
+    iterate: List[CodeTree] => List[CodeTree])(
+      trees: List[CodeTree]): List[CodeTree] = {
+    @tailrec
+    def loop(acc: List[CodeTree]): List[CodeTree] =
+      if (terminate(acc)) acc
+      else loop(iterate(acc))
+    loop(trees)
+  }
 
   /**
    * This function creates a code tree which is optimal to encode the text `chars`.
@@ -147,7 +157,9 @@ object Huffman {
    * The parameter `chars` is an arbitrary text. This function extracts the character
    * frequencies from that text and creates a code tree based on them.
    */
-  def createCodeTree(chars: List[Char]): CodeTree = ???
+  def createCodeTree(chars: List[Char]): CodeTree = 
+    until(singleton, combine)(
+        makeOrderedLeafList(times(chars))).head
 
   // Part 3: Decoding
 
