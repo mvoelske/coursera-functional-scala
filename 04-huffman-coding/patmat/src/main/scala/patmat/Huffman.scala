@@ -114,7 +114,13 @@ object Huffman {
    * If `trees` is a list of less than two elements, that list should be returned
    * unchanged.
    */
-  def combine(trees: List[CodeTree]): List[CodeTree] = ???
+  def combine(trees: List[CodeTree]): List[CodeTree] = trees match {
+    case t1 :: t2 :: ts => // at least two trees
+      val fork = Fork(t1, t2, chars(t1) ::: chars(t2), weight(t1) + weight(t2))
+      val (less, more) = ts.splitAt(ts.indexWhere(t => weight(t) > fork.weight))
+      less ::: fork :: more
+    case other => other
+  }
 
   /**
    * This function will be called in the following way:
