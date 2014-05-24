@@ -54,4 +54,17 @@ class HuffmanSuite extends FunSuite {
       assert(decode(t1, quickEncode(t1)("ab".toList)) === "ab".toList)
     }
   }
+  
+  test("sanity check: get the same size code with french letter frequencies") {
+    val lf = List(('e', 225947),('s', 121895),('a', 117110),('i', 115465),('t', 111103),('n', 108812),('r', 100500),('u', 96785),('l', 83668),('o', 82762),('d', 56269),('c', 50003),('p', 46335),('m', 45521),('v', 24975),('q', 20889),('f', 16351),('b', 13822),('g', 13288),('h', 11298),('j', 8351),('x', 5928),('y', 4725),('z', 2093),('w', 1747),('k', 745))
+
+    val ll = Huffman.makeOrderedLeafList(lf)
+    val tree = Huffman.until(Huffman.singleton, Huffman.combine)(ll).head
+    val message = Huffman.string2Chars("huffmanestcool")
+    val encoded = Huffman.encode(tree)(message)
+    
+    
+       
+    assert(encoded.size === Huffman.secret.size)
+  }
 }

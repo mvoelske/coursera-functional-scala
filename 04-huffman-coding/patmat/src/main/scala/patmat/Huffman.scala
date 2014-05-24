@@ -96,7 +96,7 @@ object Huffman {
    * of a leaf is the frequency of the character.
    */
   def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] =
-    freqs.sortBy(cf => cf._2).map(Leaf.tupled)
+    freqs.sortBy(_._2).map(Leaf.tupled)
 
   /**
    * Checks whether the list `trees` contains only one single code tree.
@@ -117,9 +117,13 @@ object Huffman {
    */
   def combine(trees: List[CodeTree]): List[CodeTree] = trees match {
     case t1 :: t2 :: ts => // at least two trees
-      val fork = Fork(t1, t2, chars(t1) ::: chars(t2), weight(t1) + weight(t2))
-      val (less, more) = ts.splitAt(ts.indexWhere(t => weight(t) > fork.weight))
-      less ::: fork :: more
+      assert(weight(t1) <= weight(t2))
+      val fork = Fork(t1, t2, chars(t1) ++ chars(t2), weight(t1) + weight(t2))
+
+      def smaller(t: CodeTree) = weight(t) < fork.weight
+
+      ts.takeWhile(smaller) ::: fork :: ts.dropWhile(smaller)
+
     case other => other
   }
 
@@ -179,7 +183,7 @@ object Huffman {
         case other => throw new Error("Unexpected input: " + other)
       }
 
-    loop(tree, bits, List()) reverse
+    loop(tree, bits, List()).reverse
   }
 
   /**
@@ -222,7 +226,7 @@ object Huffman {
           else loop(r, c1 :: cs, 1 :: acc)
         case other => throw new Error(other.toString)
       }
-    loop(tree, text, Nil) reverse
+    loop(tree, text, Nil).reverse
   }
 
   // Part 4b: Encoding using code table
