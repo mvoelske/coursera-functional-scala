@@ -157,9 +157,9 @@ object Huffman {
    * The parameter `chars` is an arbitrary text. This function extracts the character
    * frequencies from that text and creates a code tree based on them.
    */
-  def createCodeTree(chars: List[Char]): CodeTree = 
+  def createCodeTree(chars: List[Char]): CodeTree =
     until(singleton, combine)(
-        makeOrderedLeafList(times(chars))).head
+      makeOrderedLeafList(times(chars))).head
 
   // Part 3: Decoding
 
@@ -170,15 +170,15 @@ object Huffman {
    * the resulting list of characters.
    */
   def decode(tree: CodeTree, bits: List[Bit]): List[Char] = {
-    def loop(branch: CodeTree, data: List[Bit], acc: List[Char]): List[Char] = 
+    def loop(branch: CodeTree, data: List[Bit], acc: List[Char]): List[Char] =
       (branch, data, acc) match {
-      case (Leaf(c, w), Nil, acc) => c :: acc
-      case (Leaf(c, w), bs, acc) => loop(tree, bs, c::acc)
-      case (Fork(l, _, _, _), 0::bs, acc) => loop(l, bs, acc)
-      case (Fork(_, r, _, _), 1::bs, acc) => loop(r, bs, acc)
-      case other => throw new Error("Unexpected input: " + other)
-    }
-      
+        case (Leaf(c, w), Nil, acc) => c :: acc
+        case (Leaf(c, w), bs, acc) => loop(tree, bs, c :: acc)
+        case (Fork(l, _, _, _), 0 :: bs, acc) => loop(l, bs, acc)
+        case (Fork(_, r, _, _), 1 :: bs, acc) => loop(r, bs, acc)
+        case other => throw new Error("Unexpected input: " + other)
+      }
+
     loop(tree, bits, List()) reverse
   }
 
@@ -211,15 +211,17 @@ object Huffman {
       case Fork(_, _, cs, _) => cs.contains(c)
       case Leaf(c1, _) => c1 == c
     }
-    
-    def loop(branch: CodeTree, data: List[Char], acc: List[Bit]): List[Bit] = 
+
+    def loop(branch: CodeTree, data: List[Char], acc: List[Bit]): List[Bit] =
       (branch, data, acc) match {
-      case (_, Nil, acc) => acc
-      case (Leaf(c, w), c1::cs, acc) => assert(c==c1); loop(tree, cs, acc)
-      case (Fork(l, r, _, _), c1::cs, acc) => 
-        if (pick(l, c1)) loop(l, c1::cs, 0::acc)
-      	else loop(r, c1::cs, 1::acc)
-    }
+        case (_, Nil, acc) => acc
+        case (Leaf(c, w), c1 :: cs, acc) =>
+          assert(c == c1); loop(tree, cs, acc)
+        case (Fork(l, r, _, _), c1 :: cs, acc) =>
+          if (pick(l, c1)) loop(l, c1 :: cs, 0 :: acc)
+          else loop(r, c1 :: cs, 1 :: acc)
+        case other => throw new Error(other.toString)
+      }
     loop(tree, text, Nil) reverse
   }
 
@@ -231,7 +233,11 @@ object Huffman {
    * This function returns the bit sequence that represents the character `char` in
    * the code table `table`.
    */
-  def codeBits(table: CodeTable)(char: Char): List[Bit] = ???
+  def codeBits(table: CodeTable)(char: Char): List[Bit] = (table, char) match {
+    case ((c, bs) :: cbs, c1) if c == c1 => bs
+    case (cb :: cbs, c1) => codeBits(cbs)(c1)
+    case (Nil, c1) => throw new Error("Not found: " + c1)
+  }
 
   /**
    * Given a code tree, create a code table which contains, for every character in the
@@ -241,14 +247,21 @@ object Huffman {
    * a valid code tree that can be represented as a code table. Using the code tables of the
    * sub-trees, think of how to build the code table for the entire tree.
    */
-  def convert(tree: CodeTree): CodeTable = ???
+  def convert(tree: CodeTree): CodeTable = {
+    def loop(tree: CodeTree, prefix: List[Bit]): CodeTable = tree match {
+      case Fork(l, r, _, _) =>
+        mergeCodeTables(loop(l, 0 :: prefix), loop(r, 1 :: prefix))
+      case Leaf(c, _) => List((c, prefix.reverse))
+    }
+    loop(tree, Nil)
+  }
 
   /**
    * This function takes two code tables and merges them into one. Depending on how you
    * use it in the `convert` method above, this merge method might also do some transformations
    * on the two parameter code tables.
    */
-  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = ???
+  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = a ++ b
 
   /**
    * This function encodes `text` according to the code tree `tree`.
@@ -256,5 +269,5 @@ object Huffman {
    * To speed up the encoding process, it first converts the code tree to a code table
    * and then uses it to perform the actual encoding.
    */
-  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = text flatMap codeBits(convert(tree))
 }
