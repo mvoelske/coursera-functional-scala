@@ -220,8 +220,11 @@ object Huffman {
       (branch, data, acc) match {
         case (_, Nil, acc) => acc
         case (Leaf(c, w), c1 :: cs, acc) =>
+          // when we reach a leaf, make sure we've encoded the correct char
+          // then, move on to the next one
           assert(c == c1); loop(tree, cs, acc)
         case (Fork(l, r, _, _), c1 :: cs, acc) =>
+          // depending on which branch we follow, add a zero or one to the code
           if (pick(l, c1)) loop(l, c1 :: cs, 0 :: acc)
           else loop(r, c1 :: cs, 1 :: acc)
         case other => throw new Error(other.toString)
