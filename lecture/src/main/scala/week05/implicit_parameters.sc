@@ -2,7 +2,7 @@ package week05
 
 object implicit_parameters {
 
-	def msort[T](xs: List[T])(ord: Ordering[T]): List[T] = {
+	def msort[T](xs: List[T])(implicit ord: Ordering[T]): List[T] = {
 		val n = xs.length / 2
 		if (n == 0) xs
 		else {
@@ -14,10 +14,11 @@ object implicit_parameters {
 					else y :: merge(xs, ys1)
 			}
 			val (fst, snd) = xs splitAt n
-			merge(msort(fst)(ord), msort(snd)(ord))
+			merge(msort(fst), msort(snd))
 		}
-	}                                         //> msort: [T](xs: List[T])(ord: Ordering[T])List[T]
+	}                                         //> msort: [T](xs: List[T])(implicit ord: Ordering[T])List[T]
 
 
-	msort( List(1,23, -2, 9))(Ordering.Int)   //> res0: List[Int] = List(-2, 1, 9, 23)
+	msort( List(1,23, -2, 9))                 //> res0: List[Int] = List(-2, 1, 9, 23)
+	msort( List("foo", "bar", "baz", "quux") )//> res1: List[String] = List(bar, baz, foo, quux)
 }
