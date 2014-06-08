@@ -1,6 +1,7 @@
 package forcomp
 
 import common._
+import scala.annotation.tailrec
 
 object Anagrams {
 
@@ -117,7 +118,21 @@ object Anagrams {
    *  Note: the resulting value is an occurrence - meaning it is sorted
    *  and has no zero-entries.
    */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences = ???
+  def subtract(x: Occurrences, y: Occurrences): Occurrences = {
+    @tailrec
+    def iter(acc: Occurrences, x: Occurrences, y: Occurrences): Occurrences = (acc, x, y) match {
+      case (acc, _, Nil) => acc
+      case (acc, Nil, _) => acc
+      case (acc, (x @ (xchr, xcnt)) :: xs, (y @ (ychr, ycnt)) :: ys) =>
+        if (xchr == ychr) {
+          val ncnt = xcnt - ycnt
+          val nacc = if (ncnt > 0) (xchr, ncnt) :: acc else acc
+          iter(nacc, xs, ys)
+        } else if (xchr < ychr) iter(x :: acc, xs, y :: ys)
+        else iter(acc, x :: xs, ys)
+    }
+    iter(Nil, x, y).reverse
+  }
 
   /**
    * Returns a list of all anagram sentences of the given sentence.
