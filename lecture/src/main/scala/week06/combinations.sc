@@ -1,7 +1,6 @@
 package week06
 
 object combinations {
-  println("Welcome to the Scala worksheet")       //> Welcome to the Scala worksheet
 
   val M = 5                                       //> M  : Int = 5
   val N = 3                                       //> N  : Int = 3
