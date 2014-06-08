@@ -67,7 +67,10 @@ object Anagrams {
     dictionary.groupBy(wordOccurrences)
 
   /** Returns all the anagrams of a given word. */
-  def wordAnagrams(word: Word): List[Word] = ???
+  def wordAnagrams(word: Word): List[Word] =
+    dictionaryByOccurrences
+      .filter { case (occ, dword) => occ == wordOccurrences(word) }
+      .flatMap(_._2).toList
 
   /**
    * Returns the list of all subsets of the occurrence list.
@@ -92,7 +95,16 @@ object Anagrams {
    *  Note that the order of the occurrence list subsets does not matter -- the subsets
    *  in the example above could have been displayed in some other order.
    */
-  def combinations(occurrences: Occurrences): List[Occurrences] = ???
+  def combinations(occurrences: Occurrences): List[Occurrences] = {
+    def expand(o: (Char, Int)): Occurrences = (0 to o._2).map(c => (o._1, c)).toList
+    occurrences match {
+      case Nil => List(List())
+      case (o :: os) => (for {
+        occ <- expand(o)
+        other <- combinations(os)
+      } yield (occ :: other)).map(l => l.filter(_._2 > 0))
+    }
+  }
 
   /**
    * Subtracts occurrence list `y` from occurrence list `x`.
