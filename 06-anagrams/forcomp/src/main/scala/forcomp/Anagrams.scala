@@ -46,7 +46,7 @@ object Anagrams {
     }
 
   /** Converts a sentence into its character occurrence list. */
-  def sentenceOccurrences(s: Sentence): Occurrences = s.flatMap(wordOccurrences)
+  def sentenceOccurrences(s: Sentence): Occurrences = wordOccurrences(s.mkString)
 
   /**
    * The `dictionaryByOccurrences` is a `Map` from different occurrences to a sequence of all
@@ -175,6 +175,34 @@ object Anagrams {
    *
    *  Note: There is only one anagram of an empty sentence.
    */
-  def sentenceAnagrams(sentence: Sentence): List[Sentence] = ???
+  def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
+    def sentenceAnagramFromOccurrences(acc: Sentence, occ: Occurrences): List[Sentence] = {
+      (acc, occ) match {
+        case (acc, Nil) => List(acc)
+        case (acc, occ) =>
+          val comb = combinations(occ).filter(dictionaryByOccurrences.contains)
+          if (comb.isEmpty) List()
+          else {
+            val brah = for {
+              c <- comb
+              word <- dictionaryByOccurrences(c)
+            } yield (word, subtract(occ, c))
+            println(s"acc:$acc\tocc:$occ\tbrah:$brah")
+            brah.map(x => sentenceAnagramFromOccurrences(x._1 :: acc, x._2))
+          }.flatten
+        //            val rest = comb.map(c => subtract(occ, c))
+        //            (comb zip rest).flatMap {
+        //              case (c, r) =>
+        //                dictionaryByOccurrences(c).flatMap(w => sentenceAnagramFromOccurrences(w :: acc, r))
+        //            }
+        //          }.toList
+      }
+    }
+    sentenceAnagramFromOccurrences(Nil, sentenceOccurrences(sentence))
+  }
+
+  def main(args: Array[String]) {
+    println(sentenceAnagrams(List("nag", "a", "ram")))
+  }
 
 }

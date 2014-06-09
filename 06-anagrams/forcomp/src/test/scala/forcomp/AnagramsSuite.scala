@@ -24,6 +24,10 @@ class AnagramsSuite extends FunSuite {
     assert(sentenceOccurrences(List("abcd", "e")) === List(('a', 1), ('b', 1), ('c', 1), ('d', 1), ('e', 1)))
   }
 
+  
+  test("sentenceOccurrences: aab baa cab") {
+   assert(sentenceOccurrences(List("aab", "baa", "cab")) === List(('a', 5), ('b', 3), ('c', 1)))
+  }
 
 
   test("dictionaryByOccurrences.get: eat") {
@@ -49,12 +53,37 @@ class AnagramsSuite extends FunSuite {
     assert(subtract(lard, r) === lad)
   }
 
+  test("subtract: fooled - dole") {
+    val fooled = List(('d', 1), ('e', 1), ('f', 1), ('l', 1), ('o', 2))
+    val dole = List(('d', 1), ('e', 1), ('l', 1), ('o', 1))
+    val of = List(('f', 1), ('o', 1))
+    
+    assert(subtract(fooled, dole) === of)
+  }
 
 
   test("combinations: []") {
     assert(combinations(Nil) === List(Nil))
   }
 
+  test("combinations: aaaa") {
+    val aaaa = List(('a', 4))
+    val aaaacomb = List(List(), List(('a', 1)), List(('a', 2)), List(('a', 3)), List(('a', 4)))
+    assert(combinations(aaaa).toSet === aaaacomb.toSet)
+  }
+  
+  test ("combinations: abbc") {
+    val abbc = List(('a', 1), ('b', 2), ('c', 1))
+    val abbccomb = List(
+        List(),
+        List(('a', 1)), List(('b', 2)), List(('b', 1)), List(('c', 1)),
+        List(('a', 1), ('b', 2)), List(('a', 1), ('b', 1)), List(('a', 1), ('c', 1)), List(('b', 2), ('c', 1)), List(('b', 1), ('c', 1)),
+        List(('a', 1), ('b', 1), ('c', 1)), List(('a', 1), ('b', 2), ('c', 1))
+    )
+    
+    assert(combinations(abbc).toSet === abbccomb.toSet)
+  }
+  
   test("combinations: abba") {
     val abba = List(('a', 2), ('b', 2))
     val abbacomb = List(
