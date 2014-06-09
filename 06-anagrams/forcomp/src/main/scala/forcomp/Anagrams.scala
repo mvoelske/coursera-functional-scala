@@ -176,24 +176,29 @@ object Anagrams {
    *  Note: There is only one anagram of an empty sentence.
    */
   def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
+    val memo = collection.mutable.Map[Occurrences, Set[Sentence]]().withDefaultValue(Set())
     def sentenceAnagramFromOccurrences(acc: Sentence, occ: Occurrences): List[Sentence] = {
       (acc, occ) match {
-        case (acc, Nil) => 
+        case (acc, Nil) =>
           // success: all characters used
+          memo(sentenceOccurrences(acc)) += acc
           List(acc)
         case (acc, occ) =>
-          val comb = combinations(occ).filter(dictionaryByOccurrences.contains)
-          if (comb.isEmpty)
-            // terminate this sentence: no more words can be formed
-            List()
+          if (memo.contains(occ))
+            memo(occ).map(_ ++ acc).toList
           else {
-            // for every word that we can make, branch off a new sentence
-            for {
-              c <- comb
-              word <- dictionaryByOccurrences(c)
-            } yield sentenceAnagramFromOccurrences(word :: acc, subtract(occ, c))
-          }.flatten
-
+            val comb = combinations(occ).filter(dictionaryByOccurrences.contains)
+            if (comb.isEmpty)
+              // terminate this sentence: no more words can be formed
+              List()
+            else {
+              // for every word that we can make, branch off a new sentence
+              for {
+                c <- comb
+                word <- dictionaryByOccurrences(c)
+              } yield sentenceAnagramFromOccurrences(word :: acc, subtract(occ, c))
+            }.flatten
+          }
       }
     }
     sentenceAnagramFromOccurrences(Nil, sentenceOccurrences(sentence))
