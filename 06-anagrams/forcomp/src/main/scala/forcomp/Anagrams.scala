@@ -121,7 +121,7 @@ object Anagrams {
   def subtract(x: Occurrences, y: Occurrences): Occurrences = {
     @tailrec
     def iter(acc: Occurrences, x: Occurrences, y: Occurrences): Occurrences = (acc, x, y) match {
-      case (acc, _, Nil) => acc
+      case (acc, xs, Nil) => xs.reverse ++ acc
       case (acc, Nil, _) => acc
       case (acc, (x @ (xchr, xcnt)) :: xs, (y @ (ychr, ycnt)) :: ys) =>
         if (xchr == ychr) {
@@ -178,24 +178,22 @@ object Anagrams {
   def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
     def sentenceAnagramFromOccurrences(acc: Sentence, occ: Occurrences): List[Sentence] = {
       (acc, occ) match {
-        case (acc, Nil) => List(acc)
+        case (acc, Nil) => 
+          // success: all characters used
+          List(acc)
         case (acc, occ) =>
           val comb = combinations(occ).filter(dictionaryByOccurrences.contains)
-          if (comb.isEmpty) List()
+          if (comb.isEmpty)
+            // terminate this sentence: no more words can be formed
+            List()
           else {
-            val brah = for {
+            // for every word that we can make, branch off a new sentence
+            for {
               c <- comb
               word <- dictionaryByOccurrences(c)
-            } yield (word, subtract(occ, c))
-            println(s"acc:$acc\tocc:$occ\tbrah:$brah")
-            brah.map(x => sentenceAnagramFromOccurrences(x._1 :: acc, x._2))
+            } yield sentenceAnagramFromOccurrences(word :: acc, subtract(occ, c))
           }.flatten
-        //            val rest = comb.map(c => subtract(occ, c))
-        //            (comb zip rest).flatMap {
-        //              case (c, r) =>
-        //                dictionaryByOccurrences(c).flatMap(w => sentenceAnagramFromOccurrences(w :: acc, r))
-        //            }
-        //          }.toList
+
       }
     }
     sentenceAnagramFromOccurrences(Nil, sentenceOccurrences(sentence))
