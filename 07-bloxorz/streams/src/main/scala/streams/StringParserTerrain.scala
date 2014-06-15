@@ -53,12 +53,12 @@ trait StringParserTerrain extends GameDef {
    * by `levelVector`.
    */
   def terrainFunction(levelVector: Vector[Vector[Char]]): Pos => Boolean = {
-    val map = (for {
+    val posMap = (for {
       (row, rowNum) <- levelVector.zipWithIndex
       (char, colNum) <- row.zipWithIndex
       if char != '-'
     } yield ((rowNum, colNum) -> true)).toMap.withDefaultValue(false)
-    p => map(p.x, p.y)
+    p => posMap(p.x, p.y)
   }
 
   /**
@@ -69,7 +69,11 @@ trait StringParserTerrain extends GameDef {
    * Hint: you can use the functions `indexWhere` and / or `indexOf` of the
    * `Vector` class
    */
-  def findChar(c: Char, levelVector: Vector[Vector[Char]]): Pos = ???
+  def findChar(c: Char, levelVector: Vector[Vector[Char]]): Pos = {
+    val rowNum = levelVector.indexWhere(x => x.contains(c))
+    val colNum = levelVector(rowNum).indexOf(c)
+    Pos(rowNum, colNum)
+  }
 
   private lazy val vector: Vector[Vector[Char]] =
     Vector(level.split("\n").map(str => Vector(str: _*)): _*)
