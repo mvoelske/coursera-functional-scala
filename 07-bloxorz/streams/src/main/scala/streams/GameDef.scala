@@ -126,11 +126,25 @@ trait GameDef {
     else if (b1.x == b2.x) dx(1, 1)
     else dx(2, 1)
 
+    def go(dir: Move) = dir match {
+      case Left => left
+      case Right => right
+      case Up => up
+      case Down => down
+    }
+    
+    def goBack(dir: Move) = dir match {
+      case Left => right
+      case Right => left
+      case Up => down
+      case Down => up
+    }
+    
     /**
      * Returns the list of blocks that can be obtained by moving
      * the current block, together with the corresponding move.
      */
-    def neighbors: List[(Block, Move)] = List((left, Left), (up, Up), (right, Right), (down, Down))
+    def neighbors: List[(Block, Move)] = List(Left, Up, Right, Down).map(d => (go(d), d))
 
     /**
      * Returns the list of positions reachable from the current block
